@@ -6,12 +6,13 @@ from django.shortcuts import redirect, render_to_response, render
 from django.template import RequestContext
 
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_decode_handler
 
 from buysell.apps.account.serializers import UserSerializer, UpdateUserSerializer, \
-                                            UserSessionSerializer
+                                            UserSessionSerializer, NotificationSerializer
 
 from datetime import datetime
 
@@ -188,3 +189,51 @@ class PasswordHandler(APIView):
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NotificationHandler(ListAPIView):
+    """**NofiticationHandler** class handles user request for notifications
+
+    ## Note ##
+    + Only **GET** method is allows for retrieving notifications
+
+    ## Request
+        :::bash
+        $ curl -X POST "http://example.com/account/notification.json"
+                -H "Content-type: application/json"
+
+    ## Response
+        ::javascript
+        /* on success - 200 */
+        [
+            {
+                "id": 1, 
+                "user": 1, 
+                "content": "message 1", 
+                "receive_date": "2014-11-22T15:34:02.132Z"
+            }, 
+            {
+                "id": 2, 
+                "user": 1, 
+                "content": "message 2", 
+                "receive_date": "2014-11-22T15:38:21.472Z"
+            }, 
+            {
+                "id": 3, 
+                "user": 1, 
+                "content": "message 3", 
+                "receive_date": "2014-11-22T15:38:33.219Z"
+            }
+        ]
+        /* User is not logged in - 403 */
+        {
+            "detail" : "Authentication credentials were not provided."
+        }
+    """
+
+    serializer_class = NotificationSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+    paginate_by = 5
+    paginate_by_param = 'page_size'
+    max_paginate_by_param = '100'
+

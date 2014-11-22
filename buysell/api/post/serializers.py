@@ -28,8 +28,6 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ('id', 'writer', 'title', 'content', 'create_date', 'update_date', 'images')
 
     def restore_object(self, attrs, instance=None):
-        print attrs
-
         if instance is not None:
             instance.title = attrs.get('title', instance.title)
             if (attrs.get('is_private', None) is not None):
@@ -44,10 +42,17 @@ class PostSerializer(serializers.ModelSerializer):
 
         return instance
 
-class PostRetreiveSerializer(serializers.Serializer):
+class PostRetreiveSerializer(serializers.ModelSerializer):
 
-    post_id = serializers.IntegerField()
+    class Meta:
+        model = Post
+        fields = ('id', 'writer', 'title', 'content', 'create_date', 'update_date', 'images')
+        # fields = ('writer', 'title', 'content', 'create_date', 'update_date', 'images')
 
-    def validate(self, attrs):
-        post = Post.objects.get(id=attrs['post_id'])
-        return post
+    # def restore_object(self, attrs, instance=None):
+    #     pass
+    # post_id = serializers.IntegerField()
+
+    # def validate(self, attrs):
+    #     post = Post.objects.get(id=attrs['post_id'])
+    #     return post

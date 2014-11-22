@@ -24,6 +24,8 @@
     <![endif]-->
 </head>
 
+<!-- {% include "common/header.html" %} -->
+
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -35,7 +37,6 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="#">KAIST Buy & Sell</a>
             </div>
@@ -44,9 +45,6 @@
                 <ul class="nav navbar-nav">
                     <li>
                         <a href="#">About</a>
-                    </li>
-                    <li>
-                        <a href="#">Profile</a>
                     </li>
                     <li>
                         <a href="#">Notification</a>
@@ -67,7 +65,20 @@
         <div class="row">
 
             <div class="col-md-3">
-                <p class="lead">Hello, [USER]!</p>
+                <div class="login">
+                    <p class="message">Please login!</p>
+                    <p class="idpw">
+                        <input type="text" class="form-control" placeholder="User ID">
+                    </p>
+                    <p class="idpw">
+                        <input type="password" class="form-control">
+                    </p>
+                    <p class="button">
+                        <button type="button" class="btn btn-default btn-block">Login</button>
+                        <button type="button" class="btn btn-default btn-block">Register</button>
+                    </p>
+                </div>
+                
                 <div class="list-group">
                     <a href="#" class="list-group-item">BUY</a>
                     <a href="#" class="list-group-item">SELL</a>

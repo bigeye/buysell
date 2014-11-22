@@ -13,6 +13,36 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
+class UserRegistrationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password',)
+        write_only_fields = ('password',)
+
+
+    def validate_username(self, attrs, source):
+        if User.objects.filter(username=attrs[source]).exists():
+            raise serializers.ValidationError("Username is already used")
+        return attrs
+
+    def validate_email(self, attrs, source):
+        if source not in attrs:
+            raise serializers.ValidationError("Email field is required")
+        return attrs
+
+    def restore_object(self, attrs, instance=None):
+        assert instance is None, 'Cannot update users with UserRegistrationSerializer'
+        user = User(username = attrs['username'],
+                    email = attrs.get('email', None),
+                    first_name = attrs.get('first_name', ''),
+                    last_name = attrs.get('last_name', ''),
+                    )
+        user.set_password(attrs['password'])
+        user.save()
+        return user
+        
+
 class UpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -32,9 +62,10 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
             return instance
 
-        msg = 'Instance should no be None'
+        msg = 'Instance should not be None'
         raise serializers.ValidationError(msg)
 
+        
 
 class UserSessionSerializer(serializers.Serializer):
 

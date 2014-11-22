@@ -11,7 +11,8 @@ from rest_framework import status
 from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_decode_handler
 
 from buysell.apps.account.serializers import UserSerializer, UpdateUserSerializer, \
-                                            UserSessionSerializer, NotificationSerializer
+                                            UserSessionSerializer, NotificationSerializer, \
+                                            UserRegistrationSerializer
 
 from datetime import datetime
 
@@ -182,6 +183,50 @@ class PasswordHandler(APIView):
     def post(self, request, format=None):
 
         serializer = UpdateUserSerializer(request.user, data=request.DATA, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RegistrationHandler(APIView):
+    """**RegistrationHandler** class handles user registration.
+
+    ## Note ##
+    + Only **POST** method is allowed for changing password.
+
+    ## Request ##
+        :::bash
+        $ curl -X POST "http://exmaple.com/account/registration.json"
+                -d '{"username" : "{username}", "password" : "{new_password}", "email": "user@example.com", "last_name": "John", "first_name": "Kim"}',
+                -H "Content-type: application/json"
+
+    ## Response ##
+        :::javascript
+        /* On success - 200 */
+        {
+            "id" : 1,
+            "username" : "johnkim",
+            "email": "user@example.com",
+            "last_name" : "John",
+            "first_name" : "Kim"
+        }
+        /* Bad request - 400 */
+        {
+            "username": ["This field is required."],
+            "password": ["This field is required."],
+        }
+    """
+
+    # Permission classe should be empty because nobody can be authenticated
+    # before login.
+    permission_classes = ()
+
+    def post(self, request, format=None):
+
+        serializer = UserRegistrationSerializer(data=request.DATA)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

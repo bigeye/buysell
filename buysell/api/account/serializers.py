@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
@@ -11,15 +10,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name')
-
-class UserRegistrationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password',)
         write_only_fields = ('password',)
-
 
     def validate_username(self, attrs, source):
         if User.objects.filter(username=attrs[source]).exists():
@@ -32,26 +24,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def restore_object(self, attrs, instance=None):
-        assert instance is None, 'Cannot update users with UserRegistrationSerializer'
-        user = User(username = attrs['username'],
-                    email = attrs.get('email', None),
-                    first_name = attrs.get('first_name', ''),
-                    last_name = attrs.get('last_name', ''),
-                    )
-        user.set_password(attrs['password'])
-        user.save()
-        return user
-        
-
-class UpdateUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password',)
-        write_only_fields = ('password',)
-
-    def restore_object(self, attrs, instance=None):
-
         if instance is not None:
             instance.username = attrs.get('username', instance.username)
             instance.email = attrs.get('email', instance.email)
@@ -59,13 +31,16 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             instance.last_name = attrs.get('last_name', instance.last_name)
             if attrs.get('password') is not None:
                 instance.set_password(attrs.get('password'))
-
             return instance
 
-        msg = 'Instance should not be None'
-        raise serializers.ValidationError(msg)
+        user = User(username = attrs['username'],
+                    email = attrs.get('email', None),
+                    first_name = attrs.get('first_name', ''),
+                    last_name = attrs.get('last_name', ''),
+                    )
+        user.set_password(attrs['password'])
+        return user
 
-        
 
 class UserSessionSerializer(serializers.Serializer):
 

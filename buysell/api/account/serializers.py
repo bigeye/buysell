@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
-from buysell.apps.account.models import Notification
+from buysell.api.account.models import Notification
 
 from rest_framework import serializers
 

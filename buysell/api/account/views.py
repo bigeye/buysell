@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_decode_handler
 
-from buysell.apps.account.serializers import UserSerializer, UpdateUserSerializer, \
+from buysell.api.account.serializers import UserSerializer, UpdateUserSerializer, \
                                             UserSessionSerializer, NotificationSerializer, \
                                             UserRegistrationSerializer
 
@@ -18,7 +18,7 @@ from datetime import datetime
 
 
 def main(request):
-    return HttpResponse("<p>apps.account.views.main</p><p>/account/</p>")
+    return HttpResponse("<p>api.account.views.main</p><p>/account/</p>")
 
 
 class SessionLoginHandler(APIView):

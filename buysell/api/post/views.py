@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from buysell.apps.post.serializers import PostSerializer, PostRetreiveSerializer
+from buysell.api.post.serializers import PostSerializer, PostRetreiveSerializer
 
 class PostHandler(APIView):
 

@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 
-from buysell.apps.post.models import Tag, Post
+from buysell.api.post.models import Tag, Post
 
 class UserProfile(models.Model):
     

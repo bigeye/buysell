@@ -6,7 +6,6 @@ urlpatterns = patterns('',
     # url(r'^$', 'buysell.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
-    url(r'^admin/', include(admin.site.urls)),
-
-    url(r'^api/', include('buysell.api.urls')),
+    url(r'^account/', include('buysell.api.account.urls')),
+    url(r'^post/', include('buysell.api.post.urls')),
 )

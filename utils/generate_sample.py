@@ -12,8 +12,8 @@ import random
 import json
 from django.contrib.auth import hashers
 from django.contrib.auth.models import User
-from buysell.apps.post.models import Post
-from buysell.apps.account.models import UserProfile
+from buysell.api.post.models import Post
+from buysell.api.account.models import UserProfile
 
 num_users = 100
 num_posts = 200

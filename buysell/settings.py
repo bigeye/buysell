@@ -40,9 +40,9 @@ INSTALLED_APPS = (
     'rest_framework',
 
     'buysell',
-    'buysell.apps.manage',
-    'buysell.apps.account',
-    'buysell.apps.post',
+    'buysell.api.manage',
+    'buysell.api.account',
+    'buysell.api.post',
 )
 
 MIDDLEWARE_CLASSES = (

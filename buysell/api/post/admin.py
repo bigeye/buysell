@@ -1,5 +1,5 @@
 from django.contrib import admin
-from buysell.apps.post.models import Tag, Post, Message, Review, PostImage
+from buysell.api.post.models import Tag, Post, Message, Review, PostImage
 
 class TagAdmin(admin.ModelAdmin):
     model = Tag

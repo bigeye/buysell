@@ -1,5 +1,5 @@
-from buysell.apps.post.models import Post, Transaction, Message, Review, Tag, PostImage
-from buysell.apps.account.serializers import UserSerializer
+from buysell.api.post.models import Post, Transaction, Message, Review, Tag, PostImage
+from buysell.api.account.serializers import UserSerializer
 from buysell import settings
 
 from rest_framework import serializers

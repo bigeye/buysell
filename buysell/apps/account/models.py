@@ -8,6 +8,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
     subscribe_tag = models.ManyToManyField(Tag)
     profile_image = models.ImageField(upload_to = 'profile', default='default_profile.png')
+    phone = models.CharField(max_length = 50)
 
 class OAuthToken(models.Model):
 
@@ -25,26 +26,3 @@ class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     content = models.TextField(null = False)
     receive_date = models.DateTimeField(auto_now_add = True)
-
-class Message(models.Model):
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    content = models.TextField(null = False)
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, 
-                                related_name = 'message_sender')
-    receive_date = models.DateTimeField(auto_now_add = True)
-
-class Transaction(models.Model):
-
-    STATUS_TYPE = (
-        ('request', 'REQUEST'),
-        ('accept', 'ACCEPT'),
-        ('deny', 'DENY'),
-    )
-
-    seller = models.ForeignKey(settings.AUTH_USER_MODEL, 
-                                related_name = 'transaction_seller')
-    buyer = models.ForeignKey(settings.AUTH_USER_MODEL)
-    post = models.ForeignKey(Post)
-    status = models.CharField(max_length = 10, choices = STATUS_TYPE)
-    certified_date = models.DateTimeField()

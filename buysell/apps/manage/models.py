@@ -30,11 +30,10 @@ class Log(models.Model):
         ('a_post', 'ADD POST'),
         ('d_post', 'DELETE POST'),
         ('u_post', 'UPDATE POST'),
-        ('w_comment', 'WRITE COMMENT'),
-        ('d_comment', 'DELTE COMMENT'),
         ('req_trans', 'REQUEST TRANSACTION'),
         ('acc_trans', 'ACCEPT TRANSACTION'),
         ('den_trans', 'DENY TRANSACTION'),
+        ('w_review', 'WRITE REVIEW'),
     )
 
     log_type = models.CharField(max_length = 10, choices = LOG_TYPE)

@@ -1,10 +1,20 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import permissions
 
 from buysell.api.post.serializers import PostSerializer, PostRetreiveSerializer
 
 class PostHandler(APIView):
+
+    class PostPermission(permissions.BasePermission):
+
+        def has_permission(self, request, view):
+            if request.method == 'GET':
+                return True
+            return request.user and request.user.is_authenticated()
+
+    permission_classes = (PostPermission,)
 
     def get(self, request, post_id=None, format=None):
 

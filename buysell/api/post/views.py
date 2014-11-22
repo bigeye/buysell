@@ -1,35 +1,63 @@
+from django.http import Http404
+
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import permissions
 
-from buysell.api.post.serializers import PostSerializer, PostRetreiveSerializer
+from buysell.api.post.serializers import PostSerializer
+from buysell.api.post.models import Post
+
+class PostPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.method == 'GET':
+            return True
+        return request.user and request.user.is_authenticated()
 
 class PostHandler(APIView):
 
+    permission_classes = (PostPermission,)
+
+    def get_object(self, pk):
+        try:
+            return Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            raise Http404
+
     def get(self, request, post_id=None, format=None):
+        serializer = PostSerializer(self.get_object(post_id))
+        return Response(serializer.data)
 
-        data = { 'post_id' : post_id }
-        serializer = PostRetreiveSerializer(data=data)
+    def put(self, request, post_id=None, format=None):
 
-        if serializer.is_valid():
-            p_serializer = PostSerializer(serializer.object)
+        post = self.get_object(post_id)
+
+        p_serializer = PostSerializer(post, data=request.DATA, partial=True)
+        if p_serializer.is_valid():
+            p_serializer.save()
             return Response(p_serializer.data, status=status.HTTP_200_OK)
 
         else:
             return Response(p_serializer.errors,
                     status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, post_id=None, format=None):
+class PostListHandler(ListAPIView):
 
-        data = { 'post_id' : post_id }
-        serializer = PostRetreiveSerializer(data=data)
+    serializer_class = PostSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+    paginate_by = 20
+    paginate_by_param = 'page_size'
+    max_paginate_by_param = '100'
 
+    permission_classes = (PostPermission,)
+
+    def post(self, request, post_id=None, format=None):
+        serializer = PostSerializer(data=request.DATA, context={
+            'request' : request
+            })
         if serializer.is_valid():
-            p_serializer = PostSerializer(serializer.object, data=request.DATA, partial=True)
-            if p_serializer.is_valid():
-                p_serializer.save()
-                return Response(p_serializer.data, status=status.HTTP_200_OK)
-
-        else:
-            return Response(p_serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

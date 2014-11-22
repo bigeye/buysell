@@ -91,6 +91,17 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = 'media'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES' : (
+        'rest_framework.permissions.IsAuthenticated',
+        ),    
+    'DEFAULT_AUTHENTICATION_CLASSES' : (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        )
+}
+
+# Custom server settings
 try:
     from settings_local import *
 except ImportError:

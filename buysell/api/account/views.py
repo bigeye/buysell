@@ -7,12 +7,12 @@ from django.template import RequestContext
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework import permissions
 from rest_framework import status
 from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_decode_handler
 
-from buysell.api.account.serializers import UserSerializer, UpdateUserSerializer, \
-                                            UserSessionSerializer, NotificationSerializer, \
-                                            UserRegistrationSerializer
+from buysell.api.account.serializers import UserSerializer, UserSessionSerializer, \
+                                            NotificationSerializer
 
 from datetime import datetime
 
@@ -151,47 +151,8 @@ class JWTLoginHandler(APIView):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
-class PasswordHandler(APIView):
-    """**PasswordHandler** class handles password change request
-    login.
 
-    ## Note ##
-    + Only **POST** method is allowed for changing password.
-
-    ## Request ##
-        :::bash
-        $ curl -X POST "http://exmaple.com/account/change_password.json"
-                -d '{"password" : "{new_password}"',
-                -H "Content-type: application/json"
-
-    ## Response ##
-        :::javascript
-        /* On success - 200 */
-        {
-            "id" : 1,
-            "username" : "elaborate",
-            "email": "a@c.com",
-            "last_name" : "Ahn",
-            "first_name" : "Beunguk"
-        }
-        /* User is not logged in - 403 */
-        {
-            "detail" : "Authentication credentials were not provided."
-        }
-    """
-
-    def post(self, request, format=None):
-
-        serializer = UpdateUserSerializer(request.user, data=request.DATA, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class RegistrationHandler(APIView):
+class UserHandler(APIView):
     """**RegistrationHandler** class handles user registration.
 
     ## Note ##
@@ -200,7 +161,9 @@ class RegistrationHandler(APIView):
     ## Request ##
         :::bash
         $ curl -X POST "http://exmaple.com/account/registration.json"
-                -d '{"username" : "{username}", "password" : "{new_password}", "email": "user@example.com", "last_name": "John", "first_name": "Kim"}',
+                -d '{"username" : "{username}", "password" : "{new_password}",
+                    "email": "user@example.com", "last_name": "John",
+                    "first_name": "Kim"}',
                 -H "Content-type: application/json"
 
     ## Response ##
@@ -215,18 +178,40 @@ class RegistrationHandler(APIView):
         }
         /* Bad request - 400 */
         {
-            "username": ["This field is required."],
+            "email": ["Email field is required."],
             "password": ["This field is required."],
+        }
+        /* User is not logged in - 403 */
+        {
+            "detail" : "Authentication credentials were not provided."
         }
     """
 
+    class UserHandlerPermission(permissions.BasePermission):
+        def has_permission(self, request, view):
+            if request.method == 'POST':
+                return True
+            return request.user and request.user.is_authenticated()
+
     # Permission classe should be empty because nobody can be authenticated
     # before login.
-    permission_classes = ()
+    permission_classes = (UserHandlerPermission,)
+
+    def get(self, request, format=None):
+        serializer = UserSerializer(request.user, data=request.DATA, partial=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
+        serializer = UserSerializer(data=request.DATA)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        serializer = UserRegistrationSerializer(data=request.DATA)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, format=None):
+        serializer = UserSerializer(request.user, data=request.DATA, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -286,3 +271,6 @@ class NotificationHandler(ListAPIView):
     paginate_by_param = 'page_size'
     max_paginate_by_param = '100'
 
+
+class TransactionListHandler(ListAPIView):
+    pass

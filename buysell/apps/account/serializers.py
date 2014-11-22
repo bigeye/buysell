@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
+from buysell.apps.account.models import Notification
+
 from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
@@ -68,3 +70,14 @@ class UserSessionSerializer(serializers.Serializer):
             msg = 'Must include "username" and "password"'
             raise serializers.ValidationError(msg)
 
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Notification
+
+    def restore_object(self, attrs, instance=None):
+        assert instance is None, 'Nofitication cannot be updated after creation'
+
+        instance = Notification(user = self.context['request'].user,
+                                content = attrs['content'])
+        return instance

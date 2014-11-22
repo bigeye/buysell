@@ -7,6 +7,7 @@ urlpatterns = patterns('',
     url(r'^logout$', views.SessionLogoutHandler.as_view()),
     url(r'^auth_token$', views.JWTLoginHandler.as_view()),
     url(r'^change_password$', views.PasswordHandler.as_view()),
+    url(r'^notification$$', views.NotificationHandler.as_view()),
 )
 
 urlpatterns = format_suffix_patterns(urlpatterns)

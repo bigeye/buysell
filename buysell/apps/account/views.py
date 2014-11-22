@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect, render_to_response, render
 from django.template import RequestContext
@@ -205,26 +204,31 @@ class NotificationHandler(ListAPIView):
     ## Response
         ::javascript
         /* on success - 200 */
-        [
-            {
-                "id": 1, 
-                "user": 1, 
-                "content": "message 1", 
-                "receive_date": "2014-11-22T15:34:02.132Z"
-            }, 
-            {
-                "id": 2, 
-                "user": 1, 
-                "content": "message 2", 
-                "receive_date": "2014-11-22T15:38:21.472Z"
-            }, 
-            {
-                "id": 3, 
-                "user": 1, 
-                "content": "message 3", 
-                "receive_date": "2014-11-22T15:38:33.219Z"
-            }
-        ]
+        {
+            "count": 6, 
+            "next": null, 
+            "previous": null, 
+            "results": [
+                {
+                    "id": 1, 
+                    "user": 1, 
+                    "content": "message 1", 
+                    "receive_date": "2014-11-22T15:34:02.132Z"
+                }, 
+                {
+                    "id": 2, 
+                    "user": 1, 
+                    "content": "message 2", 
+                    "receive_date": "2014-11-22T15:38:21.472Z"
+                }, 
+                {
+                    "id": 3, 
+                    "user": 1, 
+                    "content": "message 3", 
+                    "receive_date": "2014-11-22T15:38:33.219Z"
+                }
+            ]
+        }
         /* User is not logged in - 403 */
         {
             "detail" : "Authentication credentials were not provided."

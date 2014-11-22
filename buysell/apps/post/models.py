@@ -24,6 +24,11 @@ class Post(models.Model):
     #template = models.TextField()
     content = models.TextField()
 
+class PostImage(models.Model):
+    image = models.ImageField(upload_to = 'post')
+    alert = models.CharField(max_length = 150)
+    post = models.ForeignKey(Post, related_name = 'images')
+
 class Transaction(models.Model):
 
     STATUS_TYPE = (

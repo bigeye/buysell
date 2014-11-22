@@ -8,5 +8,6 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^account/', include('buysell.apps.account.urls')),
+    url(r'^post/', include('buysell.apps.post.urls')),
 
 )

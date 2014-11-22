@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 
-from buysell.api.post.serializers import PostSerializer
-from buysell.api.post.models import Post
+from buysell.api.post.serializers import PostSerializer, TransactionSerializer
+from buysell.api.post.models import Post, Transaction
 
 class PostPermission(permissions.BasePermission):
 
@@ -61,3 +61,59 @@ class PostListHandler(ListAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TransactionHandler(APIView):
+
+    def get(self, request, post_id=None, format=None):
+        """Get Transaction when there is transaction created by user.
+        """
+        try:
+            transaction = Transaction.objects.get(post__id=post_id, requester=request.user)
+            serializer = TransactionSerializer(transaction)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Transaction.DoesNotExist:
+            raise Http404
+    
+    def post(self, request, post_id=None, format=None):
+        """Create Transaction if there is no transaction created by user.
+        """
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Http404
+
+        t_serializer = TransactionSerializer(data=request.DATA, context = {
+            'request' : request,
+            'post' : post,
+        })
+        if t_serializer.is_valid():
+            t_serializer.save()
+            return Response(t_serializer.data, status=status.HTTP_200_OK)
+
+        return Response(t_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ReviewHandler(APIView):
+
+    def get(self, request, format=None):
+        """Get Review of Transaction if the review exists.
+        """
+        pass
+
+    def post(self, request, format=None):
+        """Create Reivew of Transaction if the tranaction is finished and no
+        review is written.
+        """
+
+class MessageHandler(ListAPIView):
+
+    def get(self, request, format=None):
+        """Get a list of message of the transaction.
+        """
+        pass
+
+    def post(self, request, format=None):
+        """Create a new message on the transaction.
+        """
+        pass

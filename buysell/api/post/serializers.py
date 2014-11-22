@@ -48,3 +48,40 @@ class PostSerializer(serializers.ModelSerializer):
                 content = attrs['content'])
 
         return instance
+
+class TransactionSerializer(serializers.ModelSerializer):
+
+    status = serializers.CharField()
+    requester = UserSerializer(read_only=True)
+    post = PostSerializer(read_only=True)
+    
+    def validate(self, attrs):
+        obj = Transaction.objects.filter(post=self.context['post'],
+                requester=self.context['request'].user) 
+
+        if obj.exists():
+            raise serializers.ValidationError('User already requested a transaction')
+        else:
+            return attrs
+
+    def restore_object(self, attrs, instance=None):
+        assert instance is None, 'Transaction cannot be updated after creation'
+        return Transaction(post=self.context['post'],
+                requester=self.context['request'].user,
+                status=attrs['status'])
+
+    class Meta:
+        model = Transaction
+
+class MessageSerializer(serializers.ModelSerializer):
+
+    sender = UserSerializer(read_only=True)
+    transaction = TransactionSerializer()
+
+    class Meta:
+        model = Message
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Review

@@ -43,7 +43,7 @@ class Transaction(models.Model):
     requester = models.ForeignKey(settings.AUTH_USER_MODEL)
     post = models.ForeignKey(Post)
     status = models.CharField(max_length = 10, choices = STATUS_TYPE)
-    request_date = models.DateTimeField()
+    request_date = models.DateTimeField(auto_now_add = True)
 
 class Message(models.Model):
 

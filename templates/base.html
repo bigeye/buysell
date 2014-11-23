@@ -39,7 +39,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">KAIST Buy & Sell</a>
+                <a class="navbar-brand" href="/">KAIST Buy & Sell</a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="kbs-navbar-collapse-1">
@@ -65,6 +65,7 @@
 
         <div class="row">
 
+            {% block sidebar %}
             <div class="col-md-3">
 
                 <div class="login">
@@ -82,17 +83,17 @@
                 {% else %}
 
                     <p class="message">Please login!</p>
-                    <form action="/api/account/login" method="POST" name="login_form">
+                    <form action="#" method="POST" name="login_form">
                         {% csrf_token %}
                         <p class="idpw">
-                            <input type="text" class="form-control" placeholder="User ID" id="txt_username">
+                            <input type="text" class="form-control" id="txt_username" required="">
                         </p>
                         <p class="idpw">
-                            <input type="password" class="form-control" id="txt_password">
+                            <input type="password" class="form-control" id="txt_password" required="">
                         </p>
                         <p class="button">
                             <button type="button" class="btn btn-default btn-block" id="btn_login">Login</button>
-                            <button type="button" class="btn btn-default btn-block" id="btn_register">Register</button>
+                            <button type="button" class="btn btn-default btn-block" id="btn_to_register">Register</button>
                         </p>
                     </form>
 
@@ -106,6 +107,7 @@
                     <a href="#" class="list-group-item">SHARE</a>
                 </div>
             </div>
+            {% endblock %}
 
             <div class="col-md-9">
 
@@ -116,8 +118,10 @@
                 {% endblock %}
 
                 </div>
-        </div>
+            </div>
 
+
+        </div>
     </div>
     <!-- /.container -->
 

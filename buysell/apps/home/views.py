@@ -10,3 +10,7 @@ def index(request):
         c.update({'user': request.user})
     return render_to_response("index.html", c)
 
+def register(request):
+    c = {}
+    c.update(csrf(request))
+    return render_to_response("register.html", c)

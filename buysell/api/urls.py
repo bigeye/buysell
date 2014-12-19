@@ -7,5 +7,6 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^account/', include('buysell.api.account.urls')),
-    url(r'^post/', include('buysell.api.post.urls')),
+    url(r'^post/', include('buysell.api.post.post_urls')),
+    url(r'^transaction/', include('buysell.api.post.trans_urls')),
 )

@@ -88,9 +88,15 @@ class ReviewSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
 
     sender = UserSerializer(read_only=True)
-    transaction = TransactionSerializer()
+    transaction = TransactionSerializer(read_only=True)
+
+    def restore_object(self, attrs, instance=None):
+        assert instance is None
+        return Message(transaction=self.context['transaction'],
+                sender=self.context['request'].user,
+                content=attrs['content'])
 
     class Meta:
         model = Message
-
+        fields = ('sender', 'content', 'receive_date')
 

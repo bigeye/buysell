@@ -105,6 +105,7 @@ class ReviewHandler(APIView):
         """Create Reivew of Transaction if the tranaction is finished and no
         review is written.
         """
+        pass
 
 class MessageHandler(ListAPIView):
 

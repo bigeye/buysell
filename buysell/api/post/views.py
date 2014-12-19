@@ -64,17 +64,25 @@ class PostListHandler(ListAPIView):
 
 
 class TransactionHandler(APIView):
+    """**TransactionHandler** class handles transaction requests
+
+    ## Requset
+        :::bash
+        $ curl -X GET "http://example.com/post/{post_id}/transaction.json"
+                -H "Content-type: application/json"
+    """
 
     def get(self, request, post_id=None, format=None):
         """Get Transaction when there is transaction created by user.
         """
         try:
-            transaction = Transaction.objects.get(transaction=transaction_id,
+            post = Post.objects.get(id=post_id)
+            transaction = Transaction.objects.get(post=post,
                     requester=request.user)
             serializer = TransactionSerializer(transaction)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        except Transaction.DoesNotExist:
+        except (Post.DoesNotExist, Transaction.DoesNotExist):
             raise Http404
     
     def post(self, request, post_id=None, format=None):
@@ -82,18 +90,46 @@ class TransactionHandler(APIView):
         """
         try:
             post = Post.objects.get(id=post_id)
-        except Post.DoesNotExist:
-            return Http404
 
-        t_serializer = TransactionSerializer(data=request.DATA, context = {
+        except Post.DoesNotExist:
+            raise Http404
+
+        t_serializer = TransactionSerializer(data=request.DATA, context={
             'request' : request,
             'post' : post,
         })
+
         if t_serializer.is_valid():
-            t_serializer.save()
-            return Response(t_serializer.data, status=status.HTTP_200_OK)
+            try:
+                t_serializer.save()
+                return Response(t_serializer.data, status=status.HTTP_200_OK)
+
+            except:
+                return Response({
+                    'detail' : 'User already request transaction for the post'
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(t_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, post_id=None, format=None):
+        """Update Transaction
+        """
+        try:
+            post = Post.objects.get(id=post_id)
+            transaction = Transaction.objects.get(post=post,
+                    requester=request.user)
+
+            t_serializer = TransactionSerializer(transaction, data=request.DATA,
+                    partial=True)
+
+            if t_serializer.is_valid():
+                t_serializer.save()
+                return Response(t_serializer.data, status=status.HTTP_200_OK)
+
+            return Response(t_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except (Post.DoesNotExist, Transaction.DoesNotExist):
+            raise Http404
 
 class ReviewHandler(APIView):
 

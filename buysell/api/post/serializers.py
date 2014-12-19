@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from buysell.api.post.models import Post, Transaction, Message, Review, Tag, PostImage
 from buysell.api.account.serializers import UserSerializer
 from buysell import settings
@@ -51,24 +53,21 @@ class PostSerializer(serializers.ModelSerializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
 
-    status = serializers.CharField()
     requester = UserSerializer(read_only=True)
     post = PostSerializer(read_only=True)
     
-    def validate(self, attrs):
-        obj = Transaction.objects.filter(post=self.context['post'],
-                requester=self.context['request'].user) 
-
-        if obj.exists():
-            raise serializers.ValidationError('User already requested a transaction')
-        else:
-            return attrs
-
     def restore_object(self, attrs, instance=None):
-        assert instance is None, 'Transaction cannot be updated after creation'
-        return Transaction(post=self.context['post'],
-                requester=self.context['request'].user,
-                status=attrs['status'])
+        if instance is not None:
+            # Update only transaction status
+            next_status = attrs.get('status', None)
+            instance.status = next_status
+        else:
+            # Create user transaction
+            instance = Transaction(post=self.context['post'],
+                    requester=self.context['request'].user,
+                    status=attrs['status'])
+
+        return instance
 
     class Meta:
         model = Transaction

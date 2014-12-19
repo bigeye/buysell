@@ -42,8 +42,12 @@ class Transaction(models.Model):
 
     requester = models.ForeignKey(settings.AUTH_USER_MODEL)
     post = models.ForeignKey(Post)
-    status = models.CharField(max_length = 10, choices = STATUS_TYPE)
+    status = models.CharField(max_length = 10, choices = STATUS_TYPE, default='ask')
     request_date = models.DateTimeField(auto_now_add = True)
+    update_date = models.DateTimeField(auto_now = True)
+
+    class Meta:
+        unique_together = (('requester', 'post'))
 
 class Message(models.Model):
 

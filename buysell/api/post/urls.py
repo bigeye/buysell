@@ -6,6 +6,6 @@ urlpatterns = patterns('',
     url(r'^$', views.PostListHandler.as_view()),
     url(r'^(?P<post_id>[0-9]*)/$', views.PostHandler.as_view()),
     # user aspect url
-    url(r'^transaction/(?P<transaction_id>[0-9]*)$', views.TransactionHandler.as_view()),
+    url(r'^(?P<post_id>[0-9]*)/transaction/$', views.TransactionHandler.as_view()),
     url(r'^review/(?P<review_id>[0-9]*)$', views.ReviewHandler.as_view()),
 )

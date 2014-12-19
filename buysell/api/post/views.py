@@ -126,7 +126,6 @@ class ReviewHandler(APIView):
             return Response(r_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(r_serializer.errors, status=sttus.HTTP_400_OK)
-        
 
 class MessageHandler(ListAPIView):
 

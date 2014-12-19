@@ -11,4 +11,6 @@ urlpatterns = patterns('',
     url(r'^$', 'buysell.apps.home.views.index'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('buysell.api.urls')),
+    url(r'^register/', 'buysell.apps.home.views.register'),
+    url(r'^write/', 'buysell.apps.home.views.write'),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

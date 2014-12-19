@@ -31,17 +31,30 @@ $(document).ready(function() {
     });
 
     $("#btn_login").click(function() {
-        $.post("/api/account/login",
-            {
-                username: $("#txt_username").val(),
-                password: $("#txt_password").val()
-            },
-            function(data) {
-                window.location.href = ".";
-            }
-        ).fail(function(jqXHR, textStatus, errorThrown) {
-            alert("Login failed, message: " + textStatus);
-        });
+        username = $("#txt_username").val();
+        password = $("#txt_password").val();
+
+        if (username == "") {
+            alert("Please Input User ID");
+            $("#txt_username").focus();
+        }
+        else if (password == "") {
+            alert("Please Input Password");
+            $("#txt_password").focus();
+        }
+        else {
+            $.post("/api/account/login",
+                {
+                    username: username,
+                    password: password
+                },
+                function(data) {
+                    window.location.href = ".";
+                }
+            ).fail(function(jqXHR, textStatus, errorThrown) {
+                alert("Login failed. / message: " + textStatus);
+            });
+        }
     })
 
     $("#btn_logout").click(function() {
@@ -53,4 +66,36 @@ $(document).ready(function() {
             alert("Logout failed, message: " + textStatus);
         });
     })
+
+    $("#btn_to_register").click(function() {
+        window.location.href = "/register";
+    });
+
+    $("#btn_register").click(function() {
+        var password1, password2;
+        password = $("#txt_password").val();
+        password_confirm = $("#txt_password_confirm").val();
+
+        alert(password);
+        alert(password_confirm)
+
+        if (password == password_confirm) {
+            $.post("/api/account/register",
+                {
+                    username: $("#txt_username").val(),
+                    email: $("#txt_email").val(),
+                    password: password1
+                },
+                function(data) {
+                    alert('Registration successful.');
+                    window.location.href = "/";
+                }
+            ).fail(function(jqXHR, textStatus, errorThrown) {
+                alert("Registration failed. / message: " + textStatus);
+            });
+        }
+        else {
+            alert("Passwords do not match, please check again!");
+        }
+    });
 })

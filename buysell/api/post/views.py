@@ -69,7 +69,8 @@ class TransactionHandler(APIView):
         """Get Transaction when there is transaction created by user.
         """
         try:
-            transaction = Transaction.objects.get(post__id=post_id, requester=request.user)
+            transaction = Transaction.objects.get(transaction=transaction_id,
+                    requester=request.user)
             serializer = TransactionSerializer(transaction)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -96,15 +97,36 @@ class TransactionHandler(APIView):
 
 class ReviewHandler(APIView):
 
-    def get(self, request, format=None):
+    def get(self, request, post_id=None, format=None):
         """Get Review of Transaction if the review exists.
         """
-        pass
+        try:
+            review = Review.objects.get(id=review_id)
+            r_serializer = ReviewSerializer(review)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Http404
 
     def post(self, request, format=None):
         """Create Reivew of Transaction if the tranaction is finished and no
         review is written.
         """
+        try:
+            transaction = Transaction.objects.get(post__id=post_id)
+        except Post.DoesNotExist:
+            return Http404
+
+        r_serializer = ReviewSerializer(data=request.DATA, context = {
+            'request' : request,
+            'transaction' : transaction,
+        })
+
+        if r_serializer.is_valid():
+            r_serializer.save()
+            return Response(r_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(r_serializer.errors, status=sttus.HTTP_400_OK)
+        
 
 class MessageHandler(ListAPIView):
 

@@ -56,4 +56,6 @@ class Review(models.Model):
 
     transaction = models.OneToOneField(Transaction)
     content = models.TextField()
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'reviewer')
+    reviewee = models.ForeignKey(settings.AUTH_USER_MODEL, related_name = 'reviewee')
     written_date = models.DateTimeField(auto_now_add = True)

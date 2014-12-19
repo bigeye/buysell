@@ -73,6 +73,19 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
 
+class ReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Review
+
+    def validate(self, attrs):
+        pass
+
+    def restore_object(self, attrs, instance=None):
+        assert instance is None, 'Review cannot be updated after creation'
+        pass
+
+
 class MessageSerializer(serializers.ModelSerializer):
 
     sender = UserSerializer(read_only=True)
@@ -81,7 +94,4 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
 
-class ReviewSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Review

@@ -31,18 +31,21 @@ class PostImageSerializer(serializers.ModelSerializer):
     def get_post(self, obj):
         return obj.post.id
 
-class TagSerialzier(serializers.ModelSerializer):
-    pass
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
 
 class PostSerializer(serializers.ModelSerializer):
 
     images = PostImageSerializer(many=True, required=False)
     writer = UserSerializer(read_only=True)
+    tags = TagSerializer(many=True, required=False, read_only=True)
 
     class Meta:
         model = Post
-        fields = ('id', 'writer', 'title', 'content', 'is_private', 
-                'create_date', 'update_date', 'images')
+        fields = ('id', 'status_type', 'writer', 'title', 'content', 'is_private', 
+                'create_date', 'update_date', 'images', 'tags')
 
     def restore_object(self, attrs, instance=None):
         if instance is not None:
@@ -50,6 +53,7 @@ class PostSerializer(serializers.ModelSerializer):
             if (attrs.get('is_private', None) is not None):
                 instance.is_private = True if attrs['is_private'] else False
             instance.content = attrs.get('content', instance.content)
+            instance.status_type = attrs.get('status_type', instance.status_type)
             return instance
 
         request = self.context.get('request', None)
@@ -58,7 +62,8 @@ class PostSerializer(serializers.ModelSerializer):
         if attrs.get('is_private', None) is not None:
             is_private = True if attrs['is_private'] else False
 
-        instance = Post(writer = self.context['request'].user,
+        instance = Post(status_type = attrs['status_type'],
+                writer = self.context['request'].user,
                 title = attrs['title'],
                 is_private = is_private,
                 content = attrs['content'])

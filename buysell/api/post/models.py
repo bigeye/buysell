@@ -4,12 +4,12 @@ from django.core.exceptions import ValidationError
 
 class Tag(models.Model):
     
-    name = models.TextField()
+    name = models.TextField(unique=True)
 
 class Post(models.Model):
 
     STATUS_TYPE = (
-        ('avail' , 'Available'),
+        ('available' , 'Available'),
         ('reserved' , 'Reserved'),
         ('finish' , 'Finished'),
     )
@@ -20,7 +20,7 @@ class Post(models.Model):
     create_date = models.DateTimeField(auto_now_add = True)
     update_date = models.DateTimeField(auto_now = True, auto_now_add = True)
     is_private = models.BooleanField(default = False)
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True)
 
     #template = models.TextField()
     content = models.TextField()

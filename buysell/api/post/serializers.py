@@ -9,13 +9,27 @@ from rest_framework import serializers
 class PostImageSerializer(serializers.ModelSerializer):
 
     url = serializers.SerializerMethodField('get_url')
+    post = serializers.SerializerMethodField('get_post')
+
+    def restore_object(self, attrs, instance=None):
+        if instance is not None:
+            instance.alert = attrs['alert']
+            instnace.iamge = attrs['image']
+        else:
+            instance = PostImage(post=self.context['post'],
+                    alert=attrs['alert'],
+                    image=attrs['image'])
+        return instance
 
     class Meta:
         model = PostImage
-        fields = ('url', 'alert')
+        fields = ('url', 'alert', 'image', 'post')
 
     def get_url(self, obj):
         return obj.image.url
+
+    def get_post(self, obj):
+        return obj.post.id
 
 class TagSerialzier(serializers.ModelSerializer):
     pass

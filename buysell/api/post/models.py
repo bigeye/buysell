@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 class Tag(models.Model):
     
@@ -51,10 +52,25 @@ class Transaction(models.Model):
 
 class Message(models.Model):
 
+    MSG_TYPE = (
+        ('st_update','ST_UPDATE'),
+        ('normal', 'NORMAL'),
+    )
+
+    message_type = models.CharField(max_length = 10, choices = MSG_TYPE, default='normal')
     transaction = models.ForeignKey(Transaction)
     sender = models.ForeignKey(settings.AUTH_USER_MODEL)
     content = models.TextField(null = False)
     receive_date = models.DateTimeField(auto_now_add = True)
+
+    def clean(self):
+        """Semantic check for Message model
+        """
+        if self.sender not in (self.transaction.requester, 
+                self.transaction.post.writer):
+            raise ValidationError('Message should be sent from either ' + \
+                    'post writer or transaction requester')
+
 
 class Review(models.Model):
 

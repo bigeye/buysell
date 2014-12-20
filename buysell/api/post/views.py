@@ -98,6 +98,7 @@ class TransactionCreateHandler(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class TransactionHandler(APIView):
     """**TransactionHandler** class handles transaction requests
 
@@ -107,37 +108,60 @@ class TransactionHandler(APIView):
                 -H "Content-type: application/json"
     """
 
+    def get_transaction(self, t_id):
+        try:
+            transaction = Transaction.objects.get(id=t_id)
+            return transaction
+        except Transaction.DoesNotExist:
+            return None
+
+    def check_stakeholder(self, request, transaction):
+        return request.user in (transaction.requester, transaction.post.writer)
+
     def get(self, request, transaction_id=None, format=None):
         """Get Transaction when there is transaction created by user.
         """
-        try:
-            transaction = Transaction.objects.get(id=transaction_id)
-            serializer = TransactionSerializer(transaction)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        transaction = self.get_transaction(transaction_id)
+        if transaction is None:
+            return Response({
+                'detail' : 'Transaction dose not exist'
+                }, status = status.HTTP_404_NOT_FOUND)
 
-        except (Post.DoesNotExist, Transaction.DoesNotExist):
-            raise Http404
-    
+        if not self.check_stakeholder(request, transaction):
+            return Response({
+                'detail' : 'User does not have permission to get transaction information'
+                }, status = status.HTTP_403_FORBIDDEN)
+
+        serializer = TransactionSerializer(transaction)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def put(self, request, transaction_id=None, format=None):
         """Update Transaction
         """
-        try:
-            transaction = Transaction.objects.get(id=transaction_id)
-            t_serializer = TransactionSerializer(transaction, data=request.DATA,
-                    partial=True)
+        transaction = self.get_transaction(transaction_id)
+        if transaction is None:
+            return Response({
+                'detail' : 'Transaction dose not exist'
+                }, status = status.HTTP_404_NOT_FOUND)
 
-            if t_serializer.is_valid():
-                t_serializer.save()
-                return Response(t_serializer.data, status=status.HTTP_200_OK)
+        if not self.check_stakeholder(request, transaction):
+            return Response({
+                'detail' : 'User does not have permission to put transaction information'
+                }, status = status.HTTP_403_FORBIDDEN)
 
-            return Response(t_serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
+        t_serializer = TransactionSerializer(transaction, data=request.DATA,
+                partial=True)
 
-        except (Post.DoesNotExist, Transaction.DoesNotExist):
-            raise Http404
+        if t_serializer.is_valid():
+            t_serializer.save()
+            return Response(t_serializer.data, status=status.HTTP_200_OK)
+
+        return Response(t_serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST)
 
 
 class TransactionListHandler(ListAPIView):
+
     serializer_class = PostSerializer
     queryset = serializer_class.Meta.model.objects.all()
     paginate_by = 20
@@ -154,6 +178,7 @@ class ReviewHandler(APIView):
             review = Review.objects.get(id=review_id)
             r_serializer = ReviewSerializer(review)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         except:
             return Http404
 

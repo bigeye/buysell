@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^api/', include('buysell.api.urls')),
     url(r'^register/', 'buysell.apps.home.views.register'),
     url(r'^write/', 'buysell.apps.home.views.write'),
-) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + \
+    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

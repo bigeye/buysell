@@ -1,0 +1,48 @@
+Read Me - Sample Directory
+
+This directory contains sample data.
+These are about used one(item), user(profile) or conversation.
+Some user data was picked using 'https://randomuser.me/'.
+
+-----
+1 Item
+
+Item number - description
+(Image was stored as 'image.jpg' and fetched url was stored in url.txt in the same directory)
+
+1 - Used laptop
+2 - Textbook
+3 - Mobile Phone(iPhone 4S)
+4 - Refrigerator
+5 - Badminton Racket
+6 - External HDD
+7 - Keyboard
+8 - Body Cleanser
+9 - Wallet
+10 - Monitor
+
+-----
+2 User profile
+
+User number - name
+(Image was stored as 'image.jpg' and fetched url was stored in url.txt in the same directory)
+
+1 - Luara Park
+2 - DongHyun Cho
+3 - HakJeom Park
+4 - JeonSan Kim
+5 - Edwin Mccoy
+6 - Stanley Peters
+7 - Leonard Meyer
+8 - Rosa Smith
+9 - Jeff Martinez
+10 - Meghan Miller
+
+-----
+3 Conversation
+
+Item number
+User number1: message
+User number2: message
+
+[Not Yet.]

@@ -11,7 +11,7 @@ Item number - description
 (Image was stored as 'image.jpg' and fetched url was stored in url.txt in the same directory)
 
 1 - Used laptop
-2 - Textbook
+2 - Textbook DB
 3 - Mobile Phone(iPhone 4S)
 4 - Refrigerator
 5 - Badminton Racket
@@ -20,6 +20,16 @@ Item number - description
 8 - Body Cleanser
 9 - Wallet
 10 - Monitor
+11 - KAIST Baseball jacket
+12 - KAIST Hood Tee
+13 - Honey Butter Chip
+14 - KAIST Sourvenir
+15 - Gloves
+16 - Toaster
+17 - Umbrella
+18 - HDMI Cable
+19 - USB Cable
+20 - Textbook AI
 
 -----
 2 User profile

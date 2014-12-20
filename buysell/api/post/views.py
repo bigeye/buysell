@@ -7,8 +7,8 @@ from rest_framework import status
 from rest_framework import permissions
 
 from buysell.api.post.serializers import PostSerializer, TransactionSerializer,\
-        MessageSerializer, PostImageSerializer
-from buysell.api.post.models import Post, Transaction, PostImage
+        MessageSerializer, PostImageSerializer, TagSerializer
+from buysell.api.post.models import Post, Transaction, PostImage, Tag
 
 class IsPostOwner(permissions.BasePermission):
 
@@ -33,11 +33,22 @@ class PostCreateHandler(APIView):
     """
 
     def post(self, request, post_id=None, format=None):
+
         serializer = PostSerializer(data=request.DATA, context={
-            'request' : request
+            'request' : request,
             })
+        
         if serializer.is_valid():
             serializer.save()
+            tag_json_list = request.DATA['tags']
+            for tag_json in tag_json_list:
+                try:
+                    tag = Tag.objects.get(id=tag_json['id'])
+                    serializer.object.tags.add(tag)
+                except:
+                    # skip when Tag does not exists
+                    pass
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -261,27 +272,35 @@ class ReviewHandler(APIView):
 
 class MessageCreateHandler(APIView):
 
+    permission_classes = (IsTransactionHolder,)
+
+    def get_transaction(self, t_id):
+        try:
+            transaction = Transaction.objects.get(id=t_id)
+            return transaction
+        except Transaction.DoesNotExist:
+            return None
+
     def post(self, request, transaction_id=None, format=None):
         """Create a new message on the transaction."""
 
-        try:
-            transaction = Transaction.objects.get(id=transaction_id)
-            m_serializer = MessageSerializer(data=request.DATA, context={
-                'request' : request,
-                'transaction' : transaction,
-                })
-
-            if m_serializer.is_valid():
-                m_serializer.save()
-                return Response(m_serializer.data, status=status.HTTP_201_CREATED)
-
-            else:
-                return Response(m_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        except Transaction.DoesNotExist:
-            return Response({
-                'detail' : 'Invalid transaction'
+        transaction = get_transaction(transaction_id)
+        if transaction is None:
+            return Response({'detail' : 'Invalid transaction'
                 }, status=status.HTTP_400_BAD_REQUEST)
+
+        self.check_object_permissions(request, transaction)
+        m_serializer = MessageSerializer(data=request.DATA, context={
+            'request' : request,
+            'transaction' : transaction,
+            })
+
+        if m_serializer.is_valid():
+            m_serializer.save()
+            return Response(m_serializer.data, status=status.HTTP_201_CREATED)
+
+        else:
+            return Response(m_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MessageListHandler(ListAPIView):

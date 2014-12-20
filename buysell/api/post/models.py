@@ -17,6 +17,7 @@ class Post(models.Model):
     status_type = models.CharField(max_length = 10, choices = STATUS_TYPE)
     writer = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(max_length = 150)
+    price = models.IntegerField()
     create_date = models.DateTimeField(auto_now_add = True)
     update_date = models.DateTimeField(auto_now = True, auto_now_add = True)
     is_private = models.BooleanField(default = False)

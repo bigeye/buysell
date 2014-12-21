@@ -1,0 +1,6 @@
+Item: Refrigerator
+Capacity: 45L
+Price: 30,000 Won
+
+I have used this one for 3 years.
+I am living in Somang-Gwan. Contact me at 111-222-3333.

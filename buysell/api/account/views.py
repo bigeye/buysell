@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect, render_to_response, render
 from django.template import RequestContext
+from django.db.models import Q, Min, Max
 
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
@@ -13,8 +14,11 @@ from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_decode_ha
 
 from buysell.api.account.serializers import UserSerializer, UserSessionSerializer, \
                                             NotificationSerializer
+from buysell.api.post.serializers import TransactionSerializer, MessageSerializer
+from buysell.api.post.models import Transaction, Message
 
 from datetime import datetime
+import operator
 
 
 def main(request):
@@ -273,4 +277,18 @@ class NotificationHandler(ListAPIView):
 
 
 class TransactionListHandler(ListAPIView):
-    pass
+
+    serializer_class = MessageSerializer
+    model = Message
+    paginate_by = 5
+    paginate_by_param = 'page_size'
+    max_paginate_by_param = '100'
+
+    def get_queryset(self):
+
+        msgs = Message.objects.values('transaction_id').annotate(max_date=Max('receive_date'))
+        filters = reduce(operator.or_, [(Q(transaction_id=m['transaction_id']) & \
+            Q(receive_date=m['max_date'])) for m in msgs])
+        queryset = Message.objects.filter(filters)
+
+        return queryset

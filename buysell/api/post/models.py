@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 class Tag(models.Model):
     
-    name = models.TextField(unique=True)
+    name = models.CharField(unique=True, max_length=50)
 
 class Post(models.Model):
 
@@ -59,7 +59,7 @@ class Message(models.Model):
     )
 
     message_type = models.CharField(max_length = 10, choices = MSG_TYPE, default='normal')
-    transaction = models.ForeignKey(Transaction)
+    transaction = models.ForeignKey(Transaction, related_name = 'message')
     sender = models.ForeignKey(settings.AUTH_USER_MODEL)
     content = models.TextField(null = False)
     receive_date = models.DateTimeField(auto_now_add = True)

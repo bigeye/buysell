@@ -206,7 +206,7 @@ class TransactionHandler(APIView):
 
         self.check_object_permissions(request, transaction)
         t_serializer = TransactionSerializer(transaction)
-        return Response(t_erializer.data, status=status.HTTP_200_OK)
+        return Response(t_serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, transaction_id=None, format=None):
         """Update Transaction"""
@@ -230,11 +230,15 @@ class TransactionHandler(APIView):
 
 class TransactionListHandler(ListAPIView):
 
-    serializer_class = PostSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    serializer_class = TransactionSerializer
+    model = Transaction
     paginate_by = 20
     paginate_by_param = 'page_size'
     max_paginate_by_param = '100'
+
+    def get_queryset(self):
+        queryset = Transaction.objects.filter(post__id=self.kwargs['post_id'])
+        return queryset
 
 
 class ReviewHandler(APIView):
@@ -285,7 +289,7 @@ class MessageCreateHandler(APIView):
     def post(self, request, transaction_id=None, format=None):
         """Create a new message on the transaction."""
 
-        transaction = get_transaction(transaction_id)
+        transaction = self.get_transaction(transaction_id)
         if transaction is None:
             return Response({'detail' : 'Invalid transaction'
                 }, status=status.HTTP_400_BAD_REQUEST)
@@ -307,7 +311,7 @@ class MessageCreateHandler(APIView):
 class MessageListHandler(ListAPIView):
 
     serializer_class = MessageSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    queryset = serializer_class.Meta.model.objects.all().order_by('-receive_date')
     paginate_by = 20
     paginate_by_param = 'page_size'
     max_paginate_by_param = '100'

@@ -109,7 +109,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
 
     sender = UserSerializer(read_only=True)
-    transaction = TransactionSerializer(read_only=True)
+    post = serializers.SerializerMethodField('get_post')
+
+    def get_post(self, obj):
+        return PostSerializer(obj.transaction.post).data
 
     def restore_object(self, attrs, instance=None):
         assert instance is None
@@ -119,5 +122,5 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ('sender', 'content', 'receive_date')
+        fields = ('sender', 'content', 'receive_date', 'post')
 

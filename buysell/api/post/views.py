@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.db import transaction
 
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, GenericAPIView
@@ -8,7 +9,7 @@ from rest_framework import permissions
 
 from buysell.api.post.serializers import PostSerializer, TransactionSerializer,\
         MessageSerializer, PostImageSerializer, TagSerializer
-from buysell.api.post.models import Post, Transaction, PostImage, Tag
+from buysell.api.post.models import Post, Transaction, PostImage, Tag, Message
 
 class IsPostOwner(permissions.BasePermission):
 
@@ -139,106 +140,79 @@ class PostListHandler(ListAPIView):
 
     serializer_class = PostSerializer
     queryset = serializer_class.Meta.model.objects.all().order_by('-create_date')
-    paginate_by = 20
+    paginate_by = 100
     paginate_by_param = 'page_size'
     max_paginate_by_param = '100'
 
     permission_classes = (permissions.AllowAny,)
 
 
-class TransactionCreateHandler(APIView):
-
-    def post(self, request, post_id=None, format=None):
-        """Create Transaction if there is no transaction created by user.
-        """
-        try:
-            post = Post.objects.get(id=post_id)
-
-        except Post.DoesNotExist:
-            return Response({
-                'detail' : 'No post exists'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-        t_serializer = TransactionSerializer(data=request.DATA, context={
-            'request' : request,
-            'post' : post,
-        })
-
-        try:
-            if t_serializer.is_valid():
-                t_serializer.save()
-                return Response(t_serializer.data, status=status.HTTP_200_OK)
-            return Response(t_serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
-
-        except:
-            return Response({
-                'detail' : 'User already request transaction for the post'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 class TransactionHandler(APIView):
-    """**TransactionHandler** class handles transaction requests
-
-    ## Requset
-        :::bash
-        $ curl -X GET "http://example.com/post/{post_id}/transaction.json"
-                -H "Content-type: application/json"
-    """
 
     permission_classes = (IsTransactionHolder,)
 
-    def get_transaction(self, t_id):
+    def get_object(self, pk):
         try:
-            transaction = Transaction.objects.get(id=t_id)
-            return transaction
+            return Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            return None
+
+    def get_transaction(self, post_id, requester):
+        try:
+            return Transaction.objects.get(post__id=post_id, requester=requester)
         except Transaction.DoesNotExist:
             return None
 
-    def get(self, request, transaction_id=None, format=None):
+    def get(self, request, post_id=None, format=None):
         """Get Transaction when there is transaction created by user."""
-        transaction = self.get_transaction(transaction_id)
+        transaction = self.get_transaction(post_id, request.user)
         if transaction is None:
-            return Response({
-                'detail' : 'Transaction dose not exist'
-                }, status = status.HTTP_404_NOT_FOUND)
+            return Response({}, status = status.HTTP_200_OK)
 
         self.check_object_permissions(request, transaction)
         t_serializer = TransactionSerializer(transaction)
         return Response(t_serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, transaction_id=None, format=None):
-        """Update Transaction"""
-        transaction = self.get_transaction(transaction_id)
-        if transaction is None:
-            return Response({
-                'detail' : 'Transaction dose not exist'
-                }, status = status.HTTP_404_NOT_FOUND)
+    def put(self, request, post_id=None, format=None):
+        """Create/Update Transaction"""
+        post = self.get_object(post_id)
 
-        self.check_object_permissions(request, transaction)
-        t_serializer = TransactionSerializer(transaction, data=request.DATA,
-                partial=True)
+        if post is None:
+            return Response({'detail' : 'No post exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        transaction = self.get_transaction(post_id, request.user)
+        t_serializer = None
+
+        if transaction is None:
+            t_serializer = TransactionSerializer(data=request.DATA, context={
+                'request' : request,
+                'post' : post,
+            })
+
+        else:
+            self.check_object_permissions(request, transaction)
+            t_serializer = TransactionSerializer(transaction, data=request.DATA,
+                    partial=True)
 
         if t_serializer.is_valid():
             t_serializer.save()
-            return Response(t_serializer.data, status=status.HTTP_200_OK)
+            content = request.user.first_name + ' ' + request.user.last_name\
+                    + ' has ' + t_serializer.object.status + ' the request.'
+            m_serializer = MessageSerializer(
+                    data={
+                        'message_type' : 'st_update',
+                        'content' : content
+                    }, 
+                    context={
+                        'transaction' : t_serializer.object,
+                        'request' : request}
+                    )
 
-        return Response(t_serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST)
+            if m_serializer.is_valid():
+                m_serializer.save()
+                return Response(t_serializer.data, status=status.HTTP_200_OK)
 
-
-class TransactionListHandler(ListAPIView):
-
-    serializer_class = TransactionSerializer
-    model = Transaction
-    paginate_by = 20
-    paginate_by_param = 'page_size'
-    max_paginate_by_param = '100'
-
-    def get_queryset(self):
-        queryset = Transaction.objects.filter(post__id=self.kwargs['post_id'])
-        return queryset
+        return Response(t_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReviewHandler(APIView):
@@ -311,9 +285,14 @@ class MessageCreateHandler(APIView):
 class MessageListHandler(ListAPIView):
 
     serializer_class = MessageSerializer
-    queryset = serializer_class.Meta.model.objects.all().order_by('-receive_date')
-    paginate_by = 20
+    paginate_by = 100
+    model = Message
     paginate_by_param = 'page_size'
     max_paginate_by_param = '100'
 
-    
+    def get_queryset(self):
+
+        queryset = Message.objects.filter(transaction__id = self.kwargs['transaction_id'])\
+                .order_by('-receive_date')
+
+        return queryset

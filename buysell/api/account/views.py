@@ -16,6 +16,7 @@ from buysell.api.account.serializers import UserSerializer, UserSessionSerialize
                                             NotificationSerializer
 from buysell.api.post.serializers import TransactionSerializer, MessageSerializer
 from buysell.api.post.models import Transaction, Message
+from buysell.api.account.models import UserProfile
 
 from datetime import datetime
 import operator
@@ -224,71 +225,49 @@ class UserHandler(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class NotificationHandler(ListAPIView):
-    """**NofiticationHandler** class handles user request for notifications
+class NotificationHandler(APIView):
 
-    ## Note ##
-    + Only **GET** method is allows for retrieving notifications
+    def get(self, request):
+        latest_msg = request.user.profile.latest_msg
+        latest_id = 0
+        if latest_msg is not None:
+            latest_id = latest_msg.id
 
-    ## Request
-        :::bash
-        $ curl -X POST "http://example.com/account/notification.json"
-                -H "Content-type: application/json"
+        msg_count = Message.objects.filter(Q(transaction__post__writer=self.request.user)\
+                | Q(transaction__requester=self.request.user))\
+                .filter(id__gt = latest_id).count()
 
-    ## Response
-        ::javascript
-        /* on success - 200 */
-        {
-            "count": 6, 
-            "next": null, 
-            "previous": null, 
-            "results": [
-                {
-                    "id": 1, 
-                    "user": 1, 
-                    "content": "message 1", 
-                    "receive_date": "2014-11-22T15:34:02.132Z"
-                }, 
-                {
-                    "id": 2, 
-                    "user": 1, 
-                    "content": "message 2", 
-                    "receive_date": "2014-11-22T15:38:21.472Z"
-                }, 
-                {
-                    "id": 3, 
-                    "user": 1, 
-                    "content": "message 3", 
-                    "receive_date": "2014-11-22T15:38:33.219Z"
-                }
-            ]
-        }
-        /* User is not logged in - 403 */
-        {
-            "detail" : "Authentication credentials were not provided."
-        }
-    """
+        return Response({'count' : msg_count}, status=status.HTTP_200_OK)
 
-    serializer_class = NotificationSerializer
-    queryset = serializer_class.Meta.model.objects.all()
-    paginate_by = 5
-    paginate_by_param = 'page_size'
-    max_paginate_by_param = '100'
+    def put(self, request):
+
+        msg = Message.objects.filter(Q(transaction__post__writer=self.request.user)\
+                | Q(transaction__requester=self.request.user))\
+                .order_by('-receive_date')
+
+        if len(msg) > 0:
+            profile = UserProfile.objects.get(user=request.user)
+            profile.latest_msg = msg[0]
+            profile.save()
+
+        return Response({}, status=status.HTTP_200_OK)
 
 
 class TransactionListHandler(ListAPIView):
 
     serializer_class = MessageSerializer
     model = Message
-    paginate_by = 5
+    paginate_by = 100
     paginate_by_param = 'page_size'
     max_paginate_by_param = '100'
 
     def get_queryset(self):
 
-        msgs = Message.objects.values('transaction_id').annotate(max_date=Max('receive_date'))
+        msgs = Message.objects.filter(Q(transaction__post__writer=self.request.user)\
+                | Q(transaction__requester=self.request.user))\
+                .values('transaction_id').annotate(max_date=Max('receive_date'))
         filters = reduce(operator.or_, [(Q(transaction_id=m['transaction_id']) & \
             Q(receive_date=m['max_date'])) for m in msgs])
-        queryset = Message.objects.filter(filters)
+        queryset = Message.objects.filter(filters).order_by('-receive_date')
 
         return queryset

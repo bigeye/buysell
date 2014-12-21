@@ -110,6 +110,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     sender = UserSerializer(read_only=True)
     post = serializers.SerializerMethodField('get_post')
+    transaction = TransactionSerializer(read_only=True)
 
     def get_post(self, obj):
         return PostSerializer(obj.transaction.post).data
@@ -117,10 +118,11 @@ class MessageSerializer(serializers.ModelSerializer):
     def restore_object(self, attrs, instance=None):
         assert instance is None
         return Message(transaction=self.context['transaction'],
+                message_type=attrs.get('message_type', 'normal'),
                 sender=self.context['request'].user,
                 content=attrs['content'])
 
     class Meta:
         model = Message
-        fields = ('sender', 'content', 'receive_date', 'post')
+        fields = ('sender', 'content', 'receive_date', 'post', 'message_type', 'transaction')
 

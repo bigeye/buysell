@@ -15,7 +15,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ('profile_img_url', 'subscribe_tag', 'phone')
 
     def get_url(self, obj):
-        return obj.profile_image.url
+        return 'http://api.randomuser.me/portraits/med/women/' + str(obj.user.id % 70) + '.jpg'
+        #return obj.profile_image.url
 
 class UserSerializer(serializers.ModelSerializer):
 

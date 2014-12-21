@@ -8,7 +8,6 @@ urlpatterns = patterns('',
     url(r'^(?P<post_id>\d+)/$', views.PostHandler.as_view()),
     url(r'^(?P<post_id>\d+)/image/$', views.PostImageCreateHandler.as_view()),
     url(r'^(?P<post_id>\d+)/image/(?P<image_id>\d+)/$', views.PostImageHandler.as_view()),
-    url(r'^(?P<post_id>\d+)/transaction/$', views.TransactionCreateHandler.as_view()),
-    url(r'^(?P<post_id>\d+)/transactions/$', views.TransactionListHandler.as_view()),
+    url(r'^(?P<post_id>\d+)/transaction/$', views.TransactionHandler.as_view()),
     url(r'^(?P<post_id>\d+)/review/$', views.ReviewHandler.as_view()),
 )

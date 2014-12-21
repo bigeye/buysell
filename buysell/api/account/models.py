@@ -2,13 +2,14 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from buysell.api.post.models import Tag, Post
+from buysell.api.post.models import Tag, Post, Message
 
 class UserProfile(models.Model):
     
     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile', unique=True)
     subscribe_tag = models.ManyToManyField(Tag)
     profile_image = models.ImageField(upload_to = 'profile', default='default_profile.png')
+    latest_msg = models.ForeignKey(Message, blank=True, null=True)
     phone = models.CharField(max_length = 50)
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])

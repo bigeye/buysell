@@ -40,14 +40,15 @@ class PostCreateHandler(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            tag_json_list = request.DATA['tags']
-            for tag_json in tag_json_list:
-                try:
-                    tag = Tag.objects.get(id=tag_json['id'])
-                    serializer.object.tags.add(tag)
-                except:
-                    # skip when Tag does not exists
-                    pass
+            #XXX What should we do with tags?
+            #tag_json_list = request.DATA['tags']
+            #for tag_json in tag_json_list:
+            #    try:
+            #        tag = Tag.objects.get(id=tag_json['id'])
+            #        serializer.object.tags.add(tag)
+            #    except:
+            #        # skip when Tag does not exists
+            #        pass
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -137,7 +138,7 @@ class PostHandler(APIView):
 class PostListHandler(ListAPIView):
 
     serializer_class = PostSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    queryset = serializer_class.Meta.model.objects.all().order_by('-create_date')
     paginate_by = 20
     paginate_by_param = 'page_size'
     max_paginate_by_param = '100'

@@ -2,15 +2,28 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 
-from buysell.api.account.models import Notification
+from buysell.api.account.models import Notification, UserProfile
 
 from rest_framework import serializers
 
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    profile_img_url = serializers.SerializerMethodField('get_url')     
+
+    class Meta:
+        model = UserProfile
+        fields = ('profile_img_url', 'subscribe_tag', 'phone')
+
+    def get_url(self, obj):
+        return obj.profile_image.url
+
 class UserSerializer(serializers.ModelSerializer):
+
+    profile = UserProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password',)
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password', 'profile')
         write_only_fields = ('password',)
 
     def validate_username(self, attrs, source):

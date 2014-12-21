@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
+import os, datetime
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'buysell.middleware.action_logger.ActionLoggerMiddleware',
 )
 
 ROOT_URLCONF = 'buysell.urls'
@@ -109,6 +110,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         )
+}
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=10)
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

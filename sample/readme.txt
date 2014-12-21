@@ -8,7 +8,7 @@ Some user data was picked using 'https://randomuser.me/'.
 1 Item
 
 Item number - description
-(Image was stored as 'image.jpg' and fetched url was stored in url.txt in the same directory)
+(Image is stored as 'image.jpg', fetched url is stored in 'url.txt' and description is stored in 'desc.txt' in the same directory)
 
 1 - Used laptop
 2 - Textbook DB
